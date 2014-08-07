@@ -1,5 +1,5 @@
 module RailsBookmarklet
-  
+
     require 'rails-bookmarklet/engine'
 
     def self.compile_invocation_script(url, options = {})
@@ -10,23 +10,23 @@ module RailsBookmarklet
         if options.has_key?(:params)
           options[:params].each do |key,value|
             if !((full_url.ends_with? "?") || (full_url.ends_with? "&"))
-              full_url += (full_url.include? "?") ? "&" : "?" 
+              full_url += (full_url.include? "?") ? "&" : "?"
             end
             full_url += key + "=" + value
           end
         end
 
-        return "javascript:(function(){var d=document,z=d.createElement('scr'+'ipt'),b=d.body;try{" +
-               "if(!b)throw(0);z.setAttribute('src','" + full_url + "');b.appendChild(z);}" + 
+        return "javascript:(function(){var d=document,z=d.createElement('scr'+'ipt'),b=d.body,s=getSelection?getSelection().toString():d.selection.createRange().text;if(!s)return location.assign('http://ringo4writers.com/dashboard');try{" +
+               "if(!b)throw(0);z.setAttribute('src','" + full_url + "');b.appendChild(z);}" +
                "catch(e){alert('" + error_message + "');}}).call(this);"
     end
-    
+
     def render_bookmarklet(namespace, view, options = {})
       options[:layout] = false
       raw_html = render_to_string view, options
-  
+
       tags = []
-  
+
       document = HTML::Document.new(raw_html)
       document.root.children.each do |child|
         if child.tag?
@@ -43,11 +43,11 @@ module RailsBookmarklet
       options = { :formats => ['js'], :layout => false, :locals => {:namespace => namespace, :tags => tags} }
       render 'bookmarklet/bookmarklet', options
     end
-    
+
     def self.important_stylesheet(path)
       return Rails.application.class.assets.find_asset(path).body.gsub(";", " !important;")
     end
-    
+
     def self.namespace_javascript(path, base, variable)
       s =
         "(function () {\n" +
@@ -56,7 +56,7 @@ module RailsBookmarklet
         "}).call(this);\n"
       return s
     end
-    
+
     def bookmarklet_stylesheet_link_tag(source, options = {})
       old = ActionController::Base.asset_host
       ActionController::Base.asset_host = request.protocol + request.host_with_port
@@ -64,7 +64,7 @@ module RailsBookmarklet
       ActionController::Base.asset_host = old
       return s
     end
-    
+
     def bookmarklet_asset_url(source)
       return root_url(:only_path => false) + "assets/" + source
     end
